@@ -29,13 +29,29 @@ class BookingController extends Controller
     if ($row) {
       foreach ($row as $line) {
         $seats = $line->seats()->where('booked', 0);
-        if ($seats->count() >= $max) {
+        $ids = $seats->pluck('id')->toArray();
+
+        $consecutive = $this->areConsecutives(array_values($ids), $max);
+        if ($seats->count() >= $max && $consecutive) {
           $status = $this->markSeatBooked($seats->paginate($max));
           break;
         }
       }
     }
     return $status;
+  }
+
+  function areConsecutives($arr, $n)
+  {
+    if (!$arr) return;
+    $first = $arr[0];
+    for ($counter = 1; $counter <= $n; $counter++) {
+      if (isset($arr[$counter]) && $arr[$counter] != $first + 1) {
+        break;
+        return false;
+      }
+    }
+    return true;
   }
 
   function searchRowsSeatsCount()
@@ -104,6 +120,16 @@ class BookingController extends Controller
   function resetSeats()
   {
     $this->seats::where(['booked' => 1])->update(['booked' => 0]);
+    $this->preFillSeats();
     return response()->json("Seats reset successfully");
+  }
+
+  function preFillSeats()
+  {
+    $random_number_array = range(0, 80);
+    shuffle($random_number_array);
+    $random_number_array = array_slice($random_number_array, 0, 10);
+    $this->seats::whereIn('id', $random_number_array)->update(['booked' => 1]);
+    return true;
   }
 }
