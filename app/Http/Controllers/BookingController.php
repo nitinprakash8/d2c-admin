@@ -45,11 +45,13 @@ class BookingController extends Controller
   {
     if (!$arr) return;
     $first = $arr[0];
-    for ($counter = 1; $counter <= $n; $counter++) {
-      if (isset($arr[$counter]) && $arr[$counter] != $first + 1) {
+    $counter = 1;
+    foreach ($arr as $val) {
+      if ($val != $first + $counter) {
         break;
         return false;
       }
+      $counter++;
     }
     return true;
   }
