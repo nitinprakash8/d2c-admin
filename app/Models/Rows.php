@@ -15,4 +15,9 @@ class Rows extends Model
   {
     return $this->hasMany('App\Models\Seats', 'row_id');
   }
+
+  public function row()
+  {
+    return $this->belongsTo('App\Models\Coaches');
+  }
 }
